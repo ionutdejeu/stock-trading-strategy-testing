@@ -1,6 +1,6 @@
 import datetime
 import backtrader as bt
-
+import yfinance as yf
 
 class DonchianChannels(bt.Indicator):
     '''
@@ -52,10 +52,15 @@ if __name__ == '__main__':
     cerebro.broker.setcash(1337.0)
     cerebro.broker.setcommission(commission=0.001)
 
-    data = bt.feeds.YahooFinanceData(dataname='AAPL',
-                                     fromdate=datetime.datetime(2018, 1, 1),
-                                     todate=datetime.datetime(2021, 12, 31))
+    data = bt.feeds.PandasData(dataname=yf.download('TSLA', '2022-01-01', '2022-10-05'))
+
+
     cerebro.adddata(data)
+
+    #data = bt.feeds.YahooFinanceData(dataname='AAPL',
+    #                                 fromdate=datetime.datetime(2018, 1, 1),
+    #                                 todate=datetime.datetime(2021, 12, 31))
+    #cerebro.adddata(data)
     print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
     cerebro.run()
     print('Ending Portfolio Value: %.2f' % cerebro.broker.getvalue())
