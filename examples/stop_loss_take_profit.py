@@ -43,7 +43,6 @@ class BBands(bt.Strategy):
             elif self.sell_sig > 0:
                 self.sell(exextype=bt.Order.Market)
                 self.trades += 1
-
                 if self.p.prdata:
                     print(','.join(str(x) for x in
                     ['DATA', 'OPEN',
