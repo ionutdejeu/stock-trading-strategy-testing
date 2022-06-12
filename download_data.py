@@ -8,10 +8,5 @@ if __name__ == '__main__':
 
     stock_list = ['TSLA']
     print('stock_list:', stock_list)
-    data = yf.download(stock_list, fromdate=datetime.datetime(2020, 1, 1),
-                        todate=datetime.datetime(2021, 12, 31))
-    print('data fields downloaded:', set(data.columns.get_level_values(0)))
-    #tickerlist = [yf.Ticker.url for url in stock_list]
-    for url in stock_list:
-        tickerTag = yf.Ticker(url)
-        tickerTag.actions.to_csv("{}.csv".format(url))
+    data = yf.download(stock_list, '2020-01-01', '2022-05-23')
+    data.to_csv("TSLA.csv")

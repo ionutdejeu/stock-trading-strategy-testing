@@ -22,7 +22,7 @@ class BaseStrategy(bt.Strategy):
 class ManualStopOrStopTrail(BaseStrategy):
     params = dict(
         stop_loss=0.02,  # price is 2% less than the entry point
-        trail=True,
+        trail=False,
     )
 
     def notify_order(self, order):
@@ -30,21 +30,24 @@ class ManualStopOrStopTrail(BaseStrategy):
             return  # discard any other notification
 
         if not self.position:  # we left the market
-            print('SELL@price: {:.2f}'.format(order.executed.price))
+            print("SL hit")
+            print(f'SELL@price: {order.executed.price}, exectype = {bt.Order.ExecTypes[order.exectype]}')
             return
 
         # We have entered the market
-        print('BUY @price: {:.2f}'.format(order.executed.price))
+        #print('BUY @price: {:.2f}'.format(order.executed.price))
+        print(f'BUY @price: {order.executed.price}, exectype = {bt.Order.ExecTypes[order.exectype]}')
 
         if not self.p.trail:
             stop_price = order.executed.price * (1.0 - self.p.stop_loss)
             self.sell(exectype=bt.Order.Stop, price=stop_price)
         else:
-            self.sell(exectype=bt.Order.StopTrail, trailamount=self.p.trail)
+            self.sell(exectype=bt.Order.StopTrail, trailamount=self.p.stop_loss)
 
     def next(self):
         if not self.position and self.crossup > 0:
             # not in the market and signal triggered
+            print("Bought new position")
             self.buy()
 
 
@@ -85,7 +88,7 @@ class ManualStopOrStopTrailCheat(BaseStrategy):
 class AutoStopOrStopTrail(BaseStrategy):
     params = dict(
         stop_loss=0.02,  # price is 2% less than the entry point
-        trail=False,
+        trail=2,
         buy_limit=False,
     )
 
