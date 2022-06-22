@@ -1,9 +1,13 @@
+import base64
 import datetime
 import os.path
 import sys
+from io import BytesIO
+
 import pandas as pd
 import backtrader as bt
 import yfinance as yf
+from backtrader.plot import plot
 
 
 class IndicatorDirection:
@@ -154,6 +158,19 @@ class ChandelierStrategyDev(bt.Strategy):
               (self.params.stoploss, self.params.profit_mult, self.broker.getvalue(), self.trades))
 
 
+def getBacktestChart(runstrats):
+    plotter = plot.Plot(use='Agg')
+    backtestchart = ""
+    for si, strat in enumerate(runstrats):
+        rfig = plotter.plot(strat, figid=si * 100, numfigs=1)
+        for f in rfig:
+            buf = BytesIO()
+            f.savefig(buf, bbox_inches='tight', format='png')
+            imageSrc = base64.b64encode(buf.getvalue()).decode('ascii')
+            backtestchart += f"{imageSrc}"
+
+    return backtestchart
+
 def backtest():
     # Back test the BuyChandelierStrategy with BackTrader
     cerebro = bt.Cerebro()
@@ -191,12 +208,13 @@ def backtest():
     startValue = cerebro.broker.getvalue()
     print('Starting Portfolio Value: %.2f' % startValue)
 
-    cerebro.run()
+    strats = cerebro.run()
 
     endValue = cerebro.broker.getvalue()
     print('Final Portfolio Value: %.2f' % endValue)
-
-    cerebro.plot(style="candle")
+    a=  getBacktestChart(strats)
+    print(a)
+    cerebro.plot(style="candle",savefig=True, figfilename='backtrader-plot.jpg')
 
 
 if __name__ == "__main__":
